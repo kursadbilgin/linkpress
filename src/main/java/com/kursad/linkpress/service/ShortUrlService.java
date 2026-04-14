@@ -3,12 +3,17 @@ package com.kursad.linkpress.service;
 import com.kursad.linkpress.dto.request.CreateShortUrlRequest;
 import com.kursad.linkpress.dto.response.ShortUrlResponse;
 import com.kursad.linkpress.entity.ShortUrl;
+import com.kursad.linkpress.exception.ShortCodeAlreadyExistsException;
+import com.kursad.linkpress.exception.ShortUrlNotFoundException;
+import com.kursad.linkpress.exception.UrlExpiredException;
+import com.kursad.linkpress.exception.UrlInactiveException;
 import com.kursad.linkpress.mapper.ShortUrlMapper;
 import com.kursad.linkpress.repository.ShortUrlRepository;
 import com.kursad.linkpress.util.ShortCodeGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -31,15 +36,14 @@ public class ShortUrlService {
     }
 
     public String getOriginalUrlForRedirect(String shortCode) {
-        ShortUrl shortUrl = shortUrlRepository.findByShortCode(shortCode)
-                .orElseThrow(() -> new RuntimeException("Short URL not found: " + shortCode));
+        ShortUrl shortUrl = findByShortCodeOrThrow(shortCode);
 
         if (!shortUrl.getActive()) {
-            throw new RuntimeException("Short URL is inactive: " + shortCode);
+            throw new UrlInactiveException(shortCode);
         }
 
-        if (shortUrl.getExpiresAt() != null && shortUrl.getExpiresAt().isBefore(java.time.LocalDateTime.now())) {
-            throw new RuntimeException("Short URL has expired: " + shortCode);
+        if (shortUrl.getExpiresAt() != null && shortUrl.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new UrlExpiredException(shortCode);
         }
 
         shortUrl.setClickCount(shortUrl.getClickCount() + 1);
@@ -49,8 +53,7 @@ public class ShortUrlService {
     }
 
     public ShortUrlResponse getByShortCode(String shortCode) {
-        ShortUrl shortUrl = shortUrlRepository.findByShortCode(shortCode)
-                .orElseThrow(() -> new RuntimeException("Short URL not found: " + shortCode));
+        ShortUrl shortUrl = findByShortCodeOrThrow(shortCode);
         return ShortUrlMapper.toResponse(shortUrl);
     }
 
@@ -62,22 +65,25 @@ public class ShortUrlService {
     }
 
     public void deactivate(String shortCode) {
-        ShortUrl shortUrl = shortUrlRepository.findByShortCode(shortCode)
-                .orElseThrow(() -> new RuntimeException("Short URL not found: " + shortCode));
+        ShortUrl shortUrl = findByShortCodeOrThrow(shortCode);
         shortUrl.setActive(false);
         shortUrlRepository.save(shortUrl);
     }
 
     public void delete(String shortCode) {
-        ShortUrl shortUrl = shortUrlRepository.findByShortCode(shortCode)
-                .orElseThrow(() -> new RuntimeException("Short URL not found: " + shortCode));
+        ShortUrl shortUrl = findByShortCodeOrThrow(shortCode);
         shortUrlRepository.delete(shortUrl);
+    }
+
+    private ShortUrl findByShortCodeOrThrow(String shortCode) {
+        return shortUrlRepository.findByShortCode(shortCode)
+                .orElseThrow(() -> new ShortUrlNotFoundException(shortCode));
     }
 
     private String resolveShortCode(String customAlias) {
         if (customAlias != null && !customAlias.isBlank()) {
             if (shortUrlRepository.existsByShortCode(customAlias)) {
-                throw new RuntimeException("Short code already exists: " + customAlias);
+                throw new ShortCodeAlreadyExistsException(customAlias);
             }
             return customAlias;
         }
