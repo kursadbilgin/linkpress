@@ -3,6 +3,7 @@ package com.kursad.linkpress.controller;
 import com.kursad.linkpress.dto.request.CreateShortUrlRequest;
 import com.kursad.linkpress.dto.response.ShortUrlResponse;
 import com.kursad.linkpress.service.ShortUrlService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class UrlManagementController {
     private final ShortUrlService shortUrlService;
 
     @PostMapping
-    public ResponseEntity<ShortUrlResponse> create(@RequestBody CreateShortUrlRequest request) {
+    public ResponseEntity<ShortUrlResponse> create(@Valid @RequestBody CreateShortUrlRequest request) {
         ShortUrlResponse response = shortUrlService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
