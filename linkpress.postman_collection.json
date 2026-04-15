@@ -1,0 +1,160 @@
+{
+	"info": {
+		"name": "LinkPress - URL Shortener",
+		"description": "LinkPress URL Shortener API collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		}
+	],
+	"item": [
+		{
+			"name": "URL Management",
+			"item": [
+				{
+					"name": "Create Short URL (auto code)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"originalUrl\": \"https://www.google.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/urls",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "urls"]
+						}
+					}
+				},
+				{
+					"name": "Create Short URL (custom alias)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"originalUrl\": \"https://github.com/kursadbilgin\",\n  \"customAlias\": \"kursad\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/urls",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "urls"]
+						}
+					}
+				},
+				{
+					"name": "Create Short URL (with expiration)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"originalUrl\": \"https://example.com/temporary\",\n  \"customAlias\": \"temp-link\",\n  \"expiresAt\": \"2026-12-31T23:59:59\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/urls",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "urls"]
+						}
+					}
+				},
+				{
+					"name": "List All URLs",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/urls",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "urls"]
+						}
+					}
+				},
+				{
+					"name": "Get URL Details",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/urls/kursad",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "urls", "kursad"]
+						}
+					}
+				},
+				{
+					"name": "Deactivate URL",
+					"request": {
+						"method": "PATCH",
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/urls/kursad/deactivate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "urls", "kursad", "deactivate"]
+						}
+					}
+				},
+				{
+					"name": "Delete URL",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/urls/kursad",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "urls", "kursad"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Redirect",
+			"item": [
+				{
+					"name": "Redirect (follow disabled)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/kursad",
+							"host": ["{{baseUrl}}"],
+							"path": ["kursad"]
+						},
+						"description": "Postman'da Settings > Automatically follow redirects'i kapat, boylece 302 response'u ve Location header'ini gorebilirsin."
+					}
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["health"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
